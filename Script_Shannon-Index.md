@@ -1,5 +1,5 @@
 ---
-  title: "Berechnung des Shannon-Index (Diversitaet) pro Hexagon"
+  title: "Calculation of the Shannon index per hexagon"
   author: Jannes Uhlott @ JKI
   date: 2022-01-06
   output: pdf_document
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(warning = FALSE)
 
 # Beschreibung
 
-Der Shannon-Index kann Aussagen über die landwirtschaftliche Artenvielfalt geben (Wolff et al. (2021), Uthes et al. (2020)). Dabei wird die Artenanzahl und -häufigkeit betrachtet. Für die Berechnung des Shannon-Indexes kann die Funktion **get_diversity_per_hexagon** verwendet werden. Im Folgenden wird ein Skript zur Berechnung des Shannon-Indexes mit einem Beispieldatensatz vorgestellt und die Funktion **get_diversity_per_hexagon** erläutert. 
+The Shannon index provides information on agricultural species diversity ([Wolff et al. 2021](https://doi.org/10.1007/s41742-021-00328-y), Uthes et al. 2020). The number and frequency of species are considered. The **get_diversity_per_hexagon** function calculates the Shannon index. In the following, a script for the calculation of the Shannon index with an example data set is presented and the function **get_diversity_per_hexagon** is explained. 
 
 Nach dem Datenimport werden die Hexagondaten mit den Polygondaten verschnitten, um jedem Polygon eine Hexagonid zuzuordnen. Dieses bildet die Datengrundlage, um mit der Funktion **get_polygon_area** den Flächeninhalt jedes Polygons zu berechnen. Nach der Berechnung des Shannon-Indexes für jedes Hexagon mit **get_diversity_per_hexagon** werden die Werte mit der Geometry der Hexagone als shape-Datei exportiert.  
 
