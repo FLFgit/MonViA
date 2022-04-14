@@ -14,7 +14,6 @@ knitr::opts_chunk$set(warning = FALSE)
 ```
 
 # Beschreibung
-
 The Shannon index provides information on agricultural species diversity ([Wolff et al. 2021](https://doi.org/10.1007/s41742-021-00328-y), [Uthes et al. 2020](https://doi.org/10.1016/j.ecolind.2019.105725). The number and abundance of species are considered. The function **get_diversity_per_hexagon** is used to calculate the Shannon index. In the following, a script for the calculation of the Shannon index with an example data set is presented and the function **get_diversity_per_hexagon** is explained.
 
 After the data import, the hexagon data is overlayed with the polygon data to assign a hexagon to each polygon. This forms the data basis for calculating the area of each polygon with the **get_polygon_area** function. After calculating the Shannon index for each hexagon with **get_diversity_per_hexagon**, the values are exported as a shape file together with the geometry of the hexagons.    
@@ -64,7 +63,6 @@ hexagon_data <- st_read("../Hexagon_DE_UTM32/BB/BB_Hexagone.shp")
 ```
 
 ## Transformation and filtering
-
 To intersect the data later, the data must be in the same coordinate reference system. For this purpose, the coordinate reference system of the polygons is transformed into that of the hexagons. In addition, the polygon data are filtered so that only arable crops remain.
 
 ```{r, transform_filter, results='hide'}
@@ -83,7 +81,6 @@ shp_filtered <- shp_filtered %>%
 ```
 
 ## Intersect
-
 Intersection of the polygon and hexagon data with the **st_intersection** command from the **sf** package
 ```{r, intersection, results='hide'}
 intersected <- st_intersection(shp_filtered, hexagon_data)
@@ -99,8 +96,8 @@ polygon_details <- get_polygon_area(intersected)
 
 The **get_diversity_per_hexagon** function is used to get the Shannon index for the *raw_polygon_details* [HexagonID, code, area] input dataset. This contains polygons that must include a hexagonID, a code for classification, and a value for area. Additionally, the hexagon data is needed, which was used to determine the HexagonID of the polygons. The calculation of the Shannon index is based on the package **vegan**.
 
-Der Datensatz *raw_polygon_details* wird nach NAs in der Code-Spalte gefiltert und anhand der HexagonID und den vorhandenen Codes gruppiert. Anschließend wird die Summe der Flächen pro Code gebildet und das Ergebnis als *area_per_code_data* gespeichert. Hieraus kann nun der Shannon-Index H für die Spalte area_pro_code, gruppiert nach der HexagonID, berechnet werden. Das Ergebnis (*diversity_data*) umfasst die HexagonID, den Shannon-Index (H) und die Geometrie der Hexagone. 
-
+The data set *raw_polygon_details* is filtered for NAs in the code column (Crop ID) and grouped based on the HexagonID and the existing codes. Then the sum of the areas per code is formed and the result is stored as *area_per_code_data*. From this, the Shannon index H can now be calculated for the area_per_code column, grouped by the HexagonID. The result (*diversity_data*) includes the hexagonID, the Shannon index (H) and the geometry of the hexagons.
+ 
 ```{r, diversity_data, warning = FALSE, message = FALSE}
 raw_polygon_details <- data.frame(HexagonID = polygon_details$HexagonID,
                                   code=polygon_details$CM_full_19,
@@ -109,9 +106,8 @@ diversity_data <- get_diversity_per_hexagon(hexagon_data, raw_polygon_details)
 ```
 
 
-## Filter Hexagone
-
-Um vergleichbare Hexagone zu betrachten, werden Hexagone mit einer Fläche kleiner als 0.999 km² gefiltert. Dieses betrifft also die Randhexagone, deren Fläche durch z.B. Landesgrenzen zerschnitten werden.
+## Hexagon filtering
+In order to consider comparable hexagons, hexagons with an area smaller than 0.999 km² are filtered. This concerns therefore the edge hexagons, whose area is cut by e.g. country borders.
 
 ```{r, hexagon_filter, results='hide'}
 hexagon_area <- get_polygon_area(diversity_data)
@@ -122,8 +118,7 @@ hexagon_filtered <- hexagon_area %>%
 ```
 
 ## Export
-
-Exportieren der zusammengefassten und nach Randhexagonen gefilterten Daten mit Zentroid Mittelwert und gewichtetem Mittelwert.
+Export the summarized data filtered by marginal hexagons with centroid mean and weighted mean.
 ```{r, meanarea_data_export_test, warning = FALSE, message = FALSE, results='hide', echo=FALSE}
 # st_write(hexagon_filtered, "~/Daten/BB_segments_2019_Test/Shannon Index/BB_segments_2019_Test_main_diversity.shp", delete_dsn = TRUE)
 ```
@@ -148,8 +143,7 @@ gg
 
 
 
-# Funktionen
-
+# Functions
 ## get_diversity_per_hexagon 
 Input: hexagon_data, raw_polygon_details [hexid, code, area]
 
