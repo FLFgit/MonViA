@@ -15,9 +15,9 @@ knitr::opts_chunk$set(warning = FALSE)
 
 # Beschreibung
 
-The Shannon index provides information on agricultural species diversity ([Wolff et al. 2021](https://doi.org/10.1007/s41742-021-00328-y), Uthes et al. 2020). The number and frequency of species are considered. The **get_diversity_per_hexagon** function calculates the Shannon index. In the following, a script for the calculation of the Shannon index with an example data set is presented and the function **get_diversity_per_hexagon** is explained. 
+The Shannon index provides information on agricultural species diversity ([Wolff et al. 2021](https://doi.org/10.1007/s41742-021-00328-y), [Uthes et al. 2020](https://doi.org/10.1016/j.ecolind.2019.105725). The number and abundance of species are considered. The function **get_diversity_per_hexagon** is used to calculate the Shannon index. In the following, a script for the calculation of the Shannon index with an example data set is presented and the function **get_diversity_per_hexagon** is explained.
 
-Nach dem Datenimport werden die Hexagondaten mit den Polygondaten verschnitten, um jedem Polygon eine Hexagonid zuzuordnen. Dieses bildet die Datengrundlage, um mit der Funktion **get_polygon_area** den Flächeninhalt jedes Polygons zu berechnen. Nach der Berechnung des Shannon-Indexes für jedes Hexagon mit **get_diversity_per_hexagon** werden die Werte mit der Geometry der Hexagone als shape-Datei exportiert.  
+After the data import, the hexagon data is overlayed with the polygon data to assign a hexagon to each polygon. This forms the data basis for calculating the area of each polygon with the **get_polygon_area** function. After calculating the Shannon index for each hexagon with **get_diversity_per_hexagon**, the values are exported as a shape file together with the geometry of the hexagons.    
 
 
 ## Packages  
@@ -48,8 +48,7 @@ source("~/MonViA_Indikatoren/JU_MonViA/Skripte/Vektor/Functions_Indikatoren.R")
 ```
 
 ### Daten
-
-Einladen der Polygon- (*shp_data*) und Hexagondaten (*hexagon_data*).
+Loading the polygon (*shp_data*) and hexagon (*hexagon_data*) data.
 
 ```{r, data_testen, warning = FALSE, message = FALSE, results='hide', echo=FALSE}
 # Testen
@@ -64,41 +63,41 @@ shp_data <- st_read("./raw/BB_segments_2019_xDhWSLU.shp")
 hexagon_data <- st_read("../Hexagon_DE_UTM32/BB/BB_Hexagone.shp")
 ```
 
-## Transformieren und filtern
+## Transformation and filtering
 
-Um die Daten später zu verschneiden, müssen die Daten im gleichen Koordinatenreferenzsystem vorliegen. Dafür wird das Koordinatenreferenzsystem der Polygone an das der Hexagone angepasst. Zudem werden die Polygondaten gefiltert, sodass nur Ackerfrüchte verbleiben.
+To intersect the data later, the data must be in the same coordinate reference system. For this purpose, the coordinate reference system of the polygons is transformed into that of the hexagons. In addition, the polygon data are filtered so that only arable crops remain.
 
 ```{r, transform_filter, results='hide'}
 shp_data <- st_transform(shp_data, crs = st_crs(hexagon_data)) 
 
 shp_filtered <- shp_data %>% 
   filter (shp_data$CM_full_19 != 200 & shp_data$CM_full_19 !=254 )
-# 200: Grünland
-# 254: weitere landwirtschaftliche Flächen9
+# 200: Grassland
+# 254: other agricultural used area
 ```
 
 ```{r, filter_hauptfruchtarten, results='hide'}
 shp_filtered <- shp_filtered %>% 
   filter (CM_full_19 %in% c(4, 5, 10, 11, 12))
-# 4: Mais, 5: Winterraps, 10: Wintergerste, 11: Winterroggen, 12: Winterweizen
+# 4: Maize, 5: Winter rape seed, 10: Winter barley, 11: Winter rye, 12: Winter wheat
 ```
 
-## Verschneiden
+## Intersect
 
-Verschneidung der Polygon und Hexagondaten mit dem Befehl **st_intersection** aus dem **sf**-Paket. 
+Intersection of the polygon and hexagon data with the **st_intersection** command from the **sf** package
 ```{r, intersection, results='hide'}
 intersected <- st_intersection(shp_filtered, hexagon_data)
 ```
 
-## Polygondetails
+## Polygon area calculation
 Mit der Funktion **get_polygon_area** wird die Fläche jedes Polygons berechnet. 
 ```{r, polygon_details, results='hide'}
 polygon_details <- get_polygon_area(intersected) 
 ```
 
-## Shannon-Index
+## Shannon Index calculation
 
-Mit Hilfe der Funktion **get_diversity_per_hexagon** wird der Shannon-Index für den Inputdatensatz *raw_polygon_details* [HexagonID, code, area] bestimmt. Dieser enthält Polygone, die über eine HexagonID, einen Code zur Klassifikation und einen Wert für die Fläche umfassen müssen. Zudem werden die Hexagondaten benötigt, auf dessen Basis die HexagonID der Polygone bestimmt wurde. Die Berechnung des Shannon-Index basiert auf dem Package **vegan**. 
+The **get_diversity_per_hexagon** function is used to get the Shannon index for the *raw_polygon_details* [HexagonID, code, area] input dataset. This contains polygons that must include a hexagonID, a code for classification, and a value for area. Additionally, the hexagon data is needed, which was used to determine the HexagonID of the polygons. The calculation of the Shannon index is based on the package **vegan**.
 
 Der Datensatz *raw_polygon_details* wird nach NAs in der Code-Spalte gefiltert und anhand der HexagonID und den vorhandenen Codes gruppiert. Anschließend wird die Summe der Flächen pro Code gebildet und das Ergebnis als *area_per_code_data* gespeichert. Hieraus kann nun der Shannon-Index H für die Spalte area_pro_code, gruppiert nach der HexagonID, berechnet werden. Das Ergebnis (*diversity_data*) umfasst die HexagonID, den Shannon-Index (H) und die Geometrie der Hexagone. 
 
