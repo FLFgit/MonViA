@@ -15,9 +15,9 @@ We can add new code blocks called "chunk" using the green button in the top bar 
 
 We can use \# to structure our document, e.g.:
 
-# 1. example header
+# 1. Example header
 
-## 2. example header
+## 2. Example header
 
 Please make sure that the file name and the file title does not contain any "Umlaute". For using äöü etc. in text: file -> Save with encoding -> UTF8
 
