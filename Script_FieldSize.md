@@ -41,7 +41,7 @@ library(tidyr)
 Import the data as *shp_data*. The data show the different crop fields. Here we also hide the warnings and messages as well as the results.
 
 ```{r, data_import, warning = FALSE, message = FALSE, results='hide'}
-shp_data <- st_read("~/Daten/R-Markdown/BB_segments_2019_BB-Test.shp")
+shp_data <- st_read("~/Daten/R-Markdown/BB_segments_2019_subset.shp")
 ```
 
 # Area Calculation
